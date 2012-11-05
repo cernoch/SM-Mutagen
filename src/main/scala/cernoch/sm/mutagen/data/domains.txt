@@ -1,0 +1,16 @@
+@atom:cat
+element:cat [br, c, cl, f, h, i, n, o, s]
+
+angle:num
+charge:dec
+
+bondt:num
+
+ind:cat ["0.0", "1.0"]
+act:dec
+logp:dec
+
+@rno:cat
+rtype:cat [anthracene, ball3, benzene, carbon_5_aromatic_ring, carbon_6_ring, hetero_aromatic_5_ring, methyl, nitro, phenanthrene, ring_size_5, ring_size_6]
+
+

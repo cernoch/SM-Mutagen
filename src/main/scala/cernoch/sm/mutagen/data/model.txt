@@ -1,0 +1,9 @@
+atm(-atom, -element, -angle, -charge)
+bond(+atom, +atom, -bondt)
+ring(+atom, -rno,  -rtype)
+
+indo(-ind)
+inda(-ind)
+act(-act)
+logp(-logp)
+lumo(-charge)
