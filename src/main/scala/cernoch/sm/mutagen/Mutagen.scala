@@ -49,8 +49,8 @@ class Mutagen(easy:Boolean) extends Dumpable[BLC[Atom[Val[_]]]] {
   
   def dumpRaw = {
     val g = new Grammar(origSch.map{i => i.head.pred -> i.head }.toMap)
-    for ((row, exNo) <- data zip Stream.from(1).iterator;
-         (cls, atoms) = g.parseLine(row))
+    for ( (row, exNo) <- data zip Stream.from(1).iterator
+        ; (cls, atoms) = g.parseLine(row))
       yield {
 
       val exampleAtom = exRel mapAllArgs Dict(
