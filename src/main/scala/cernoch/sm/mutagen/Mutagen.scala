@@ -2,19 +2,12 @@ package cernoch.sm.mutagen
 
 import cernoch.scalogic._
 import cernoch.scalogic.storage.Dumpable
-import java.lang.String
-
-import java.io.InputStreamReader
-import util.parsing.input.StreamReader
-import util.parsing.combinator.JavaTokenParsers
-import cernoch.scalogic.Dict._
 
 /**
- *
+ * Mutagenesis dataset
  *
  * @author Radomír Černoch (radomir.cernoch at gmail.com)
  */
-
 class Mutagen(easy:Boolean) extends Dumpable[BLC[Atom[Val[_]]]] {
 
   private val clDom = CatDom("cls", false, Set("pos", "neg"))
@@ -75,89 +68,11 @@ class Mutagen(easy:Boolean) extends Dumpable[BLC[Atom[Val[_]]]] {
 }
 
 
-object Tools {
-
-  private[mutagen] def lines(name:String) = source(name) match {
-    case None => throw new Exception("File not found.")
-    case Some(v) => v.getLines
-  }
-
-  private[mutagen] def source(name:String) = stream(name) match {
-    case Some(v) => Some(io.Source.fromInputStream(v))
-    case None => None
-  }
-
-  private[mutagen] def reader(name:String) = stream(name) match {
-    case Some(v) => Some(StreamReader(new InputStreamReader(v)))
-    case None => None
-  }
-
-  private[mutagen] def stream(name: String) = {
-    val fname = "cernoch/sm/mutagen/data/" + name
-    val stream = getClass.getClassLoader.getResourceAsStream(fname)
-    if (stream == null) None else Some(stream)
-  }
-}
-
-
+/**
+ * Prints all atoms in the dataset
+ */
 object Mutagen {
   
   def main(args: Array[String]) : Unit
   = new Mutagen(args == Array("easy")).dump.map(println)
 }
-
-
-class Grammar(doms:Map[String,Btom[Var]]) extends JavaTokenParsers {
-
-  def parseLine(l:String)
-    = parse(line,l) match {
-        case Success(r,_) => r
-        case x => throw new SyntaxError("Unknown syntax error: " + x)
-      }
-
-  def line = "^".r ~> tridaDelim ~ repsep(atom, ",\\s*".r) <~ endOfLine ^^ {
-    case trida ~ atoms => { (trida, atoms) }
-    case _ => throw new SyntaxError("Something went wrong.")
-  }
-
-  def endOfLine = comment | "$".r
-
-  def atom = mystr ~ arguments ^^ {
-    case predicate ~ arguments => {
-
-      def str2val(s:List[String], a:List[Term]) : List[Val[_]] = (s,a) match {
-        case (arg :: aTail , war :: wTail) => war.dom match {
-          case dom@CatDom(_,_,_) =>         Val(arg, dom) :: str2val(aTail,wTail)
-          case dom@NumDom(_,_) =>   Val(BigInt(arg), dom) :: str2val(aTail,wTail)
-          case dom@DecDom(_) => Val(BigDecimal(arg), dom) :: str2val(aTail,wTail)
-        }
-        case (Nil, Nil) => List()
-        //TODO: Better exception
-        case _ => throw new SyntaxError("Lists of non-equal length");
-      }
-
-      // The archetype
-      val arch = doms.get(predicate).get
-      // Substitute arguments
-      val dict = (arch.args, str2val(arguments, arch.args)).zipped.toMap[Term,Val[_]]
-      (arch, arch.mapAllArgs(dict))
-    }
-  }
-
-  def arguments = "\\(".r ~> repsep(argument, ",\\s*".r) <~ "\\)".r
-  def argument = mystr | floatingPointNumber
-
-  def tridaDelim = trida <~ "\\s*".r
-  def trida = tridaPos | tridaNeg
-  def tridaPos = "+" ^^ { case _ => true }
-  def tridaNeg = "-" ^^ { case _ => false }
-
-  def comment = """//.*$""".r
-
-  def mystr = ident | stringLiteral ^^ { s =>
-    if (s.length() > 0 && s.charAt(0) == '"')
-      s.substring(1, s.length()-1) else s
-  }
-}
-
-class SyntaxError(msg: String) extends RuntimeException(msg) {}
