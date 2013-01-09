@@ -35,7 +35,7 @@ class Mutagen(easy:Boolean) extends Dumpable[BLC[Atom[Val[_]]]] {
     .toSet
 
   private def prependExNo
-    (a: Btom[FFT])
+    (a: Btom[Var])
   = new Btom(
     a.pred,
     exVar :: a.args,
